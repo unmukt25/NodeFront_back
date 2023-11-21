@@ -1,0 +1,26 @@
+.input-field{
+    display: grid;
+    text-align: left;
+    padding:7px;
+}
+
+.user-form{
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input:invalid[focusegone=true] ~ .error-message{
+    display: block;
+}
+
+.error-message{
+    font-size: 10px;
+    color: red;
+    display: none;
+}
+
+/* navbar settings */
+div.signin .link{
+    padding-left: 10px;
+}
