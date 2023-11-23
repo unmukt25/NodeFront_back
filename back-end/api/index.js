@@ -1,6 +1,6 @@
 const databaseOps = require("./database");
 const jwt = require('jsonwebtoken');
-const { checkpassword } = require("./util");
+const { checkPassword, hashThisPassword, GenerateSalt } = require("./util");
 module.exports = (server) => {
 
     server.get("/", function (req, res) {
@@ -9,11 +9,12 @@ module.exports = (server) => {
     });
 
     server.post("/signup", async function (req, res) {
+        
         const doc = {
             username: req.body.username,
-            password: req.body.password
+            password: await hashThisPassword(req.body.password,await GenerateSalt())
         }
-        console.log(req.body);
+        console.log(doc);
         db = new databaseOps();
         const status = await db.insertToDB("user", doc);
         res.json({
@@ -31,7 +32,7 @@ module.exports = (server) => {
         const search_result = await db.findInDb("user", doc);
 
         if (search_result.length == 1)
-            valid_pass = checkpassword(search_result[0].password, req.body.password);
+            valid_pass = checkPassword(search_result[0].password, req.body.password);
         else {
             res.json({ status: false, message: 'Multiple users or No useraccount of same email id; Account has been blocked' });
             return;
