@@ -10,11 +10,12 @@ module.exports = (server) => {
 
     server.post("/signup", async function (req, res) {
         
+        const salt= await GenerateSalt();
         const doc = {
             username: req.body.username,
-            password: await hashThisPassword(req.body.password,await GenerateSalt())
+            salt: salt,
+            password: await hashThisPassword(req.body.password, salt)
         }
-        console.log(doc);
         db = new databaseOps();
         const status = await db.insertToDB("user", doc);
         res.json({
@@ -32,18 +33,17 @@ module.exports = (server) => {
         const search_result = await db.findInDb("user", doc);
 
         if (search_result.length == 1)
-            valid_pass = checkPassword(search_result[0].password, req.body.password);
+            valid_pass = await checkPassword(search_result[0].password,search_result[0].salt, req.body.password);
         else {
             res.json({ status: false, message: 'Multiple users or No useraccount of same email id; Account has been blocked' });
             return;
         }
-
+        console.log(valid_pass);
         if (valid_pass) {
             const token = jwt.sign({
                 username: req.body.username,
                 user_id: search_result[0]._id
             }, process.env.SECRETKEY, { expiresIn: 90 });
-            console.log(token);
             res.json({ status: true, message: 'LogIn Successfull ', token: token })
             return;
         }
@@ -61,17 +61,14 @@ module.exports = (server) => {
             try {
                 const payload = jwt.verify(req.get('authorization').split(" ")[1], process.env.SECRETKEY);
                 res.json({ status: true ,payload});
-                console.log(true);
             }
             catch(error)
             {
                 res.json({ status: false })
-                console.log(false)   
             }
         }
         else {
             res.json({ status: false })
-            console.log(false)
         }
 
         // console.log(payload);

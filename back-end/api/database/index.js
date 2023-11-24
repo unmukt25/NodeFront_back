@@ -24,10 +24,10 @@ class databaseOps {
             const dbConnection = this.dbConnection;
             const database = this.database
             let result = false;
-
+            const {username}=doc;
             await dbConnection.connect();
             const collection = database.collection(collection_name);
-            if (false == await this.checkDuplicate(collection, doc))
+            if (false == await this.checkDuplicate(collection, {username:username}))
                 result = await collection.insertOne(doc);
             else
                 result="name already exist";

@@ -46,7 +46,7 @@ export default function SignIn() {
             setalertMessage({ ...alertMessage });
             setTimeout(() => {
                 setalertMessage({ ...alertMessage, dispStatus: 'none' });
-                window.location.replace('/');
+                json.status && window.location.replace('/');
             }, 2000)
             // console.log(alertMessage);
 
